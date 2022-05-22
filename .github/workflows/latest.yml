@@ -1,6 +1,7 @@
 name: latest
 
 on:
+  pull_request:
   push:
     branches:
       - master
