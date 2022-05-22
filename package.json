@@ -1,33 +1,40 @@
 {
-    "name": "root",
-    "version": "0.0.0",
-    "author": "foundry-rs authors",
-    "license": "SEE LICENSE IN EACH PACKAGE'S LICENSE FILE",
-    "private": true,
-    "workspaces": [
-        "packages/*",
-        "docs"
-    ],
-    "devDependencies": {
-        "@changesets/cli": "^2.22.0",
-        "prettier": "2.4.1",
-        "shelljs": "^0.8.5",
-        "typescript": "~4.5.2",
-        "wsrun": "^5.2.2"
-    },
-    "scripts": {
-        "build": "tsc --build packages/hardhat packages/easy-foundryup packages/hardhat-anvil packages/hardhat-forge",
-        "watch": "tsc --build --watch packages/hardhat packages/easy-foundryup packages/hardhat-anvil packages/hardhat-forge",
-        "clean": "wsrun --exclude-missing clean",
-        "test": "wsrun --exclude-missing test",
-        "lint": "wsrun --exclude-missing --stages lint && yarn prettier --check",
-        "lint:fix": "wsrun --exclude-missing --stages lint:fix && yarn prettier --write",
-        "prettier": "prettier *.md \"{docs,.github}/**/*.{md,yml}\"",
-        "release": "yarn build && yarn changeset publish"
-
-    },
-    "dependencies": {},
-    "resolutions": {
-        "**/antlr4": "4.7.1"
-    }
+  "name": "root",
+  "version": "0.0.0",
+  "author": "foundry-rs authors",
+  "license": "SEE LICENSE IN EACH PACKAGE'S LICENSE FILE",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "docs"
+  ],
+  "devDependencies": {
+    "@changesets/cli": "^2.22.0",
+    "@types/node": "^16",
+    "prettier": "^2.6.2",
+    "shelljs": "^0.8.5",
+    "tslib": "^2.4.0",
+    "turbo": "^1.2.9",
+    "typescript": "4.6.3",
+    "wsrun": "^5.2.2"
+  },
+  "scripts": {
+    "compile": "tsc --build packages/hardhat packages/easy-foundryup packages/hardhat-anvil packages/hardhat-forge",
+    "watch": "tsc --build --watch packages/hardhat packages/easy-foundryup packages/hardhat-anvil packages/hardhat-forge",
+    "build": "turbo run compile",
+    "dev": "turbo run dev --no-cache --parallel --continue",
+    "changeset": "changeset",
+    "version-packages": "changeset version",
+    "turbo-release": "turbo run build --filter=docs^... && changeset publish",
+    "clean": "wsrun --exclude-missing clean",
+    "test": "wsrun --exclude-missing test",
+    "lint": "wsrun --exclude-missing --stages lint && yarn prettier --check",
+    "lint:fix": "wsrun --exclude-missing --stages lint:fix && yarn prettier --write",
+    "prettier": "prettier *.md \"{docs,.github}/**/*.{md,yml}\"",
+    "release": "yarn build && yarn changeset publish"
+  },
+  "dependencies": {},
+  "resolutions": {
+    "**/antlr4": "4.7.1"
+  }
 }
