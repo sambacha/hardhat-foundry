@@ -12,6 +12,10 @@ env:
   ACTIONS_ALLOW_UNSECURE_COMMANDS: true
   # Needed to make foundryup not complain
   SHELL: /bin/bash
+  COMMIT_SHA: ${{ github.event.pull_request.head.sha }}
+  PULL_NUMBER: ${{ github.event.pull_request.number }}
+  RUN_ID: ${{ github.run_id }}
+  FORCE_COLOR: 2
 
 concurrency:
   group: ${{github.workflow}}-${{github.ref}}
@@ -19,48 +23,127 @@ concurrency:
 
 jobs:
   lint:
-    name: Lint (JavaScript)
-    runs-on: ubuntu-latest
+    name: Lint (JavaScript) using Node ${{ matrix.node-version }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
+
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: ['14']
+        os: ['ubuntu-latest']
+
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-node@v2
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
         with:
-          node-version: 12
-          cache: yarn
+          node-version: ${{ matrix.node-version }}
+
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+
+      - uses: actions/cache@v3
+        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+            
+          
       - name: Set PATH
         run: echo ::add-path::$HOME/.foundry/bin
+
       - name: Install
-        run: yarn --frozen-lockfile
+        run: yarn --prefer-offline
+        id: install
+        
       - name: Build
-        run: yarn build
+        run: yarn run build
+        id: build
+        
       - name: Lint
-        run: yarn lint
-  prettier:
-    name: Lint (.md, .yml)
-    runs-on: ubuntu-latest
+        run: yarn run lint
+        id: lint
+
+  prettier: 
+    name: Lint (.md, .yml) using Node ${{ matrix.node-version }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
+
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: ['14']
+        os: ['ubuntu-latest']
+
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-node@v2
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
         with:
-          node-version: 12
-          cache: yarn
+          node-version: ${{ matrix.node-version }}
+
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+
+      - uses: actions/cache@v3
+        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+            
       - name: Set PATH
         run: echo ::add-path::$HOME/.foundry/bin
       - name: Install
-        run: yarn --frozen-lockfile
+        run: yarn --prefer-offline
+        id: lint-install
+        
       - name: Build
         run: yarn build
       - name: Lint
         run: yarn prettier
   test:
-    name: Test
-    runs-on: ubuntu-latest
+    name: Test using Node ${{ matrix.node-version }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
+
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: ['14']
+        os: ['ubuntu-latest']
+
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-node@v2
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
         with:
-          node-version: 12
-          cache: yarn
+          node-version: ${{ matrix.node-version }}
+
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+
+      - uses: actions/cache@v3
+        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+            
       - name: Set PATH
         run: echo ::add-path::$HOME/.foundry/bin
       - name: Install
