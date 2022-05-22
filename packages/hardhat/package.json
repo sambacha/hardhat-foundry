@@ -6,10 +6,10 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/foundry-rs/hardhat",
-    "directory": "packages/hardhat"
+    "directory": "packages/anvil"
   },
   "engines": {
-    "node": "14.x|16.x"
+    "node": "^14.x || ^16.x || ^18.x"
   },
   "publishConfig": {
     "access": "public"
