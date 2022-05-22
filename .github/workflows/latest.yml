@@ -1,15 +1,18 @@
-name: Release
+name: latest
 
 on:
+  pull_request:
   push:
     branches:
       - master
+      - develop
   workflow_dispatch:
 
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
+
 jobs:
-  release:
+  latest:
     name: Node ${{ matrix.node-version }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
 
@@ -44,7 +47,7 @@ jobs:
       - name: Install project dependencies
         run: yarn run build
         id: production
-
+        
       - run: npm i -g lerna
         id: lerna
 
@@ -65,11 +68,3 @@ jobs:
             LICENSE.md
             packages/**/*.tgz
         id: 'automatic_releases'
-
-      - name: Create Release Pull Request or Publish to NPM
-        uses: changesets/action@v1
-        with:
-          publish: yarn release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
