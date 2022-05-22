@@ -2,6 +2,15 @@
   "$schema": "https://turborepo.org/schema.json",
   "baseBranch": "origin/develop",
   "pipeline": {
+    "compile": {
+      "outputs": [
+        "dist/**",
+        "*.tgz"
+      ],
+      "dependsOn": [
+        "^compile"
+      ]
+    },
     "build": {
       "outputs": [
         "dist/**",
